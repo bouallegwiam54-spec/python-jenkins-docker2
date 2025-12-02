@@ -1,0 +1,66 @@
+pipeline {
+    agent any
+    environment {
+        IMAGE_NAME = "python-print-app:latest"
+    }
+    stages {
+        stage('Checkout') {
+            steps {
+                git 'https://github.com/ton-utilisateur/python-jenkins-docker.git'
+            }
+        }
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    sh 'docker build -t ${IMAGE_NAME} .'
+                }
+            }
+        }
+        stage('Run Container') {
+            steps {
+                script {
+                    sh 'docker rm -f python-print-app || true'
+                    sh 'docker run --name python-print-app ${IMAGE_NAME}'
+                }
+            }
+        }
+    }
+    post {
+        success {
+            echo 'Pipeline terminé avec succès!'
+        }
+        failure {
+            echo 'Pipeline échoué.'
+        }
+    }
+}
+```
+
+4. **"Commit new file"**
+
+---
+
+### **الخطوة 5: دير Pipeline جديد فـ Jenkins**
+
+1. رجع لـ **Jenkins** → **"New Item"**
+2. السمية: `PythonDockerApp`
+3. **"Pipeline"** → **OK**
+4. فقسم **Pipeline**:
+   - **Definition:** `Pipeline script from SCM`
+   - **SCM:** `Git`
+   - **Repository URL:** `https://github.com/bouallegwiam54/python-jenkins-docker.git`
+   - **Credentials:** اختار `github-credentials`
+   - **Branch:** `*/main`
+5. **"Save"**
+
+---
+
+### **الخطوة 6: لانس و شوف النتيجة!**
+
+1. **"Build Now"**
+2. كليكي على الـ build
+3. **"Pipeline Overview"** - شوف المراحل
+4. **"Console Output"** - خاصك تشوف:
+```
+   Hello from Python!
+   Jenkins + Docker = Success!
